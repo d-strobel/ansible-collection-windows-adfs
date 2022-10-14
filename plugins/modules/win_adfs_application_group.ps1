@@ -29,10 +29,13 @@ else {
     $present = $false
 }
 
-# Set the Group Identifier to Name if not present
+# Set the Name to Group Identifier if not present
 if ($null -eq $module.Params.name) {
     $module.Params.name = $module.Params.group_identifier
 }
+
+# Always return group identifier
+$module.Result.group_identifier = $module.Params.group_identifier
 
 # Ensure powershell module is loaded
 $adfs_module = "ADFS"
@@ -46,11 +49,8 @@ catch {
     $module.FailJson("Failed to load PowerShell module $adfs_module.", $_)
 }
 
-
-
 # Search for application group
 $applicationGroup = Get-AdfsApplicationGroup -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
-
 
 # Create application group if it not exists
 if ($null -eq $applicationGroup -and $present) {
@@ -114,8 +114,5 @@ if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
     }
     $module.Result.changed = $true
 }
-
-# Return the application group identifier
-$module.Result.group_identifier = $module.Params.group_identifier
 
 $module.ExitJson()
