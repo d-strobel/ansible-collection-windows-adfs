@@ -1,0 +1,18 @@
+namespace: d_strobel
+name: windows_adfs
+version: 0.1.0
+readme: README.md
+authors:
+  - Dustin Strobel @d-strobel
+  - Yasmin Hinel @seasxlticecream
+description: |
+  Ansible collection for Active Directory Federation Services (AD FS)
+license_file: LICENSE
+tags:
+  - windows
+dependencies: {}
+repository: https://github.com/d-strobel/ansible-collection-windows-adfs
+documentation: https://github.com/d-strobel/ansible-collection-windows-adfs
+homepage: https://github.com/d-strobel/ansible-collection-windows-adfs
+issues: https://github.com/d-strobel/ansible-collection-windows-adfs/issues
+build_ignore: []
