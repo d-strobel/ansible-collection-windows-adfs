@@ -27,11 +27,11 @@ switch ($module.Params.state) {
         $present = $false
         $disabled = $false
     }
-    "present"{
+    "present" {
         $present = $true
         $disabled = $false
     }
-    "disabled"{
+    "disabled" {
         $present = $true
         $disabled = $true
     }
