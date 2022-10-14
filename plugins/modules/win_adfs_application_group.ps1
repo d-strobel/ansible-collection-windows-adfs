@@ -8,10 +8,10 @@
 
 $spec = @{
     options             = @{
-        name            = @{ type = "str"}
-        group_identifier = @{ type = "str"; required = $true}
-        description     = @{ type = "str"}
-        state           = @{ type = "str"; choices = "absent", "present"; default = "present" }
+        name             = @{ type = "str" }
+        group_identifier = @{ type = "str"; required = $true }
+        description      = @{ type = "str" }
+        state            = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
     supports_check_mode = $true
 }
@@ -30,7 +30,7 @@ else {
 }
 
 # Set the Group Identifier to Name if not present
-if($null -eq $module.Params.name){
+if ($null -eq $module.Params.name) {
     $module.Params.name = $module.Params.group_identifier
 }
 
