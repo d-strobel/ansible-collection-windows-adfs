@@ -15,8 +15,10 @@ options:
     description:
     - Set to C(present) to ensure the application group is present.
     - Set to C(absent) to ensure the application group is removed.
+    - Set to C(disabled) to ensure the application group is present but disabled.
     type: str
-    choices: [ absent, present ]
+    default: present
+    choices: [ absent, present, disabled ]
   group_identifier:
     description:
     - The identifier of the application group.
@@ -50,4 +52,8 @@ EXAMPLES = r'''
     name: Test Group
     description: Managed by Ansible
     state: present
+- name: Ensure application is present but disabled
+  d_strobel.windows_adfs.win_adfs_application_group:
+    group_identifier: test_group
+    state: disabled
 '''

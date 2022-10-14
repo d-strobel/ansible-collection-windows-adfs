@@ -11,7 +11,7 @@ $spec = @{
         name             = @{ type = "str" }
         group_identifier = @{ type = "str"; required = $true }
         description      = @{ type = "str" }
-        state            = @{ type = "str"; choices = "absent", "present"; default = "present" }
+        state            = @{ type = "str"; choices = "absent", "present", "disabled"; default = "present" }
     }
     supports_check_mode = $true
 }
@@ -22,11 +22,19 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 $ErrorActionPreference = 'Stop'
 
 # State
-if ($module.Params.state -eq "present") {
-    $present = $true
-}
-else {
-    $present = $false
+switch ($module.Params.state) {
+    "absent" {
+        $present = $false
+        $disabled = $false
+    }
+    "present"{
+        $present = $true
+        $disabled = $false
+    }
+    "disabled"{
+        $present = $true
+        $disabled = $true
+    }
 }
 
 # Set the Name to Group Identifier if not present
@@ -59,6 +67,7 @@ if ($null -eq $applicationGroup -and $present) {
             -Name $module.Params.name `
             -ApplicationGroupIdentifier $module.Params.group_identifier `
             -Description $module.Params.description `
+            -Disabled:$disabled `
             -WhatIf:$module.CheckMode `
         | Out-Null
     }
@@ -111,6 +120,31 @@ if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
     }
     catch {
         $module.FailJson("Failed to modify application group name.", $_)
+    }
+    $module.Result.changed = $true
+}
+
+# disable group
+if ($disabled -and ($applicationGroup.Enabled)) {
+    try {
+        Disable-AdfsApplicationGroup `
+            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to disable application group.", $_)
+    }
+    $module.Result.changed = $true
+}
+# enable group
+elseif (-not $disabled -and ($applicationGroup.Enabled -eq $false)) {
+    try {
+        Enable-AdfsApplicationGroup `
+            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to enable application group.", $_)
     }
     $module.Result.changed = $true
 }
