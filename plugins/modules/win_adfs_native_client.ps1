@@ -57,12 +57,15 @@ catch {
 $nativeApplicationIdentifier = (New-Guid).Guid
 
 # Search for native application group
-try {
-    $nativeApplicationGroup = Get-AdfsNativeApplicationGroup -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
+if($present){
+    try {
+        $nativeApplicationGroup = Get-AdfsNativeApplicationGroup -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
+    }
+    catch {
+        $module.FailJson("Failed to find a native application group '$($module.Params.name)'.", $_)
+    }
 }
-catch {
-    $module.FailJson("Failed to find a native application group '$($module.Params.name)'.", $_)
-}
+
 
 
 # Check description
