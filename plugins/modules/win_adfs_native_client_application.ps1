@@ -11,7 +11,7 @@ $spec = @{
         group_identifier = @{ type = "str"; required = $true }
         name             = @{ type = "str" }
         description      = @{ type = "str" }
-        redirect_uri     = @{ type = "list" }
+        redirect_uri     = @{ type = "list"; elements = "str" }
         logout_uri       = @{ type = "str" }
         state            = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
