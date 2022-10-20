@@ -7,9 +7,10 @@
 DOCUMENTATION = r'''
 ---
 module: win_adfs_native_client
-short_description:
+short_description: Add or modify native application groups
 description:
--
+- Adds or modify native application groups for the Active Directory Federation Services.
+- Change the name, description or add the redirect uri to the native application group
 options:
   state:
     description:
@@ -21,24 +22,24 @@ options:
     choices: [ absent, present, change ]
   group_identifier:
     description:
-    - The identifier of the application group.
+    - The identifier of the native application group.
     type: str
     required: yes
   name:
     description:
-    - The name of the application group.
+    - The name of the native application group.
     type: str
   description:
     description:
-    - The description for the application group.
+    - The description for the native application group.
     type: str
   redirect_uri:
     description:
-    - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    - The redirect uri(s) for the native application group that is needed for the OAuth 2.0 client
     type: list
   logout_uri:
     description:
-    - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    - The logout uri for the native application group that is needed for the OAuth 2.0 client.
     type: str
 author:
 - Dustin Strobel (@d-strobel)
