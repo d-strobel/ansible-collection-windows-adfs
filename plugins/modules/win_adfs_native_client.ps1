@@ -85,5 +85,16 @@ if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
     $module.Result.changed = $true
 }
 
-
+# Check Redirect Uri
+if($null -eq $applicationGroup.RedirectUri -and $present){
+    try {
+        Set-AdfsNativeClientApplication `
+            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
+            -RedirectUri $module.Params.redirect_uri `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to set native application group redirect uri.", $_)
+    }
+}
 
