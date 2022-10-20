@@ -32,9 +32,6 @@ switch ($module.Params.state) {
     }
 }
 
-# Always return group identifier
-$module.Result.group_identifier = $module.Params.group_identifier
-
 # Ensure powershell module is loaded
 $adfs_module = "ADFS"
 
@@ -47,80 +44,40 @@ catch {
     $module.FailJson("Failed to load PowerShell module $adfs_module.", $_)
 }
 
-# create application identifier
-$nativeApplicationIdentifier = (New-Guid).Guid
 
 # Search for native application group
-if($present){
-    try {
-        $nativeApplicationGroup = Get-AdfsNativeApplicationGroup -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
-    }
-    catch {
-        $module.FailJson("Failed to find a native application group '$($module.Params.name)'.", $_)
-    }
-}
+$adfsNativeClientApplication = Get-AdfsNativeClientApplication -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
 
+# Create native client application if it not exists
+if ($null -eq $adfsNativeClientApplication -and $present) {
+    # Client-ID
+    $nativeApplicationIdentifier = (New-Guid).Guid
 
-# Check description
-if ($module.Params.description -and ($nativeApplicationGroup.Description -ne $module.Params.description)) {
-    try {
-        Set-AdfsNativeClientApplication `
-            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
-            -Description $module.Params.description `
-            -WhatIf:$module.CheckMode
-    }
-    catch {
-        $module.FailJson("Failed to modify native application group description.", $_)
-    }
-    $module.Result.changed = $true
-}
-
-# Check name
-if ($module.Params.name -and ($nativeApplicationGroup.Name -ne $module.Params.name)) {
-    try {
-        Set-AdfsNativeClientApplication `
-            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
-            -Name $module.Params.name `
-            -WhatIf:$module.CheckMode
-    }
-    catch {
-        $module.FailJson("Failed to modify native application group name.", $_)
-    }
-    $module.Result.changed = $true
-}
-
-# Check Redirect Uri
-if ($null -eq $nativeApplicationGroup.RedirectUri -and $change) {
-    try {
-        Set-AdfsNativeClientApplication `
-            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
-            -RedirectUri $module.Params.redirect_uri `
-            -WhatIf:$module.CheckMode
-    }
-    catch {
-        $module.FailJson("Failed to set native application group redirect uri.", $_)
-    }
-}
-
-# Add native application group
-if ($present -and -not $change) {
     try {
         Add-AdfsNativeClientApplication `
             -ApplicationGroupIdentifier $module.Params.group_identifier `
-            -Name $module.Params.name`
-            -Identifier $nativeApplicationIdentifier`
-            -RedirectUri $module.Params.redirect_uri`
-            -Description $module.Params.description`
-            -LogoutUri $module.Params.logout_uri`
+            -Name $module.Params.name `
+            -Identifier $nativeApplicationIdentifier `
+            -RedirectUri $module.Params.redirect_uri `
+            -Description $module.Params.description `
+            -LogoutUri $module.Params.logout_uri `
             -WhatIf:$module.CheckMode
     }
     catch {
-        $module.FailJson("Failed to add native application group.", $_)
+        $module.FailJson("Failed to add native client application.", $_)
     }
+    $module.Result.changed = $true
+    $module.ExitJson()
+}
+elseif ($null -eq $adfsNativeClientApplication -and -not $present) {
+    $module.ExitJson()
 }
 
-# Delete native application group
-if ($nativeApplicationGroup -and -not $present) {
+# Set client-id
+$nativeApplicationIdentifier = $adfsNativeClientApplication.Identifier
+
+# Remove native client application if state == absent
+if ($adfsNativeClientApplication -and -not $present) {
     try {
         Remove-AdfsNativeClientApplication `
             -TargetIdentifier $module.Params.group_identifier `
@@ -128,9 +85,53 @@ if ($nativeApplicationGroup -and -not $present) {
             -WhatIf:$module.CheckMode
     }
     catch {
-        $module.FailJson("Failed to remove native application group.", $_)
+        $module.FailJson("Failed to remove native client application.", $_)
+    }
+
+    $module.Result.changed = $true
+    $module.ExitJson()
+}
+
+# Check description
+if ($module.Params.description -and ($adfsNativeClientApplication.Description -ne $module.Params.description)) {
+    try {
+        Set-AdfsNativeClientApplication `
+            -TargetIdentifier $module.Params.group_identifier `
+            -Description $module.Params.description `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to modify native client application description.", $_)
+    }
+    $module.Result.changed = $true
+}
+
+# Check name
+if ($module.Params.name -and ($adfsNativeClientApplication.Name -ne $module.Params.name)) {
+    try {
+        Set-AdfsNativeClientApplication `
+            -TargetIdentifier $module.Params.group_identifier `
+            -Name $module.Params.name `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to modify native client application name.", $_)
+    }
+    $module.Result.changed = $true
+}
+
+# Check Redirect Uri
+if ($module.Params.redirect_uri -and ($adfsNativeClientApplication.RedirectUri -ne $module.Params.redirect_uri)) {
+    try {
+        Set-AdfsNativeClientApplication `
+            -TargetIdentifier $module.Params.group_identifier `
+            -RedirectUri $module.Params.redirect_uri `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to set native client application redirect uri.", $_)
     }
 }
 
+$module.Result.application_identifier
 $module.ExitJson()
-
