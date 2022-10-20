@@ -71,5 +71,19 @@ if ($module.Params.description -and ($applicationGroup.Description -ne $module.P
     $module.Result.changed = $true
 }
 
+# Check name
+if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
+    try {
+        Set-AdfsNativeClientApplication `
+            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
+            -Name $module.Params.name `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to modify native application group name.", $_)
+    }
+    $module.Result.changed = $true
+}
+
 
 
