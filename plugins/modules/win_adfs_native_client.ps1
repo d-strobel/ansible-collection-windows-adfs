@@ -8,7 +8,6 @@
 
 $spec = @{
     options             = @{
-
         group_identifier = @{ type = "str"; required = $true }
         name             = @{ type = "str" }
         description      = @{ type = "str" }
@@ -107,7 +106,7 @@ if ($null -eq $nativeApplicationGroup.RedirectUri -and $change) {
     }
 }
 
-# Add native client app
+# Add native application group
 if ($present -and -not $change) {
     try {
         Add-AdfsNativeClientApplication `
@@ -124,4 +123,18 @@ if ($present -and -not $change) {
     }
 }
 
+# Delete native application group
+if ($nativeApplicationGroup -and -not $present) {
+    try {
+        Remove-AdfsNativeClientApplication `
+            -TargetIdentifier $module.Params.group_identifier `
+            -Confirm:$false `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to remove native application group.", $_)
+    }
+}
+
+$module.ExitJson()
 
