@@ -48,6 +48,14 @@ catch {
     $module.FailJson("Failed to load PowerShell module $adfs_module.", $_)
 }
 
+# Search for native application group
+try {
+    $nativeApplicationGroup = Get-AdfsNativeApplicationGroup -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
+}
+catch {
+    $module.FailJson("Failed to find a native application group '$($module.Params.name)'.", $_)
+}
+
 
 
 
