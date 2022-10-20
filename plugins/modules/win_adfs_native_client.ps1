@@ -74,13 +74,13 @@ elseif ($null -eq $adfsNativeClientApplication -and -not $present) {
 }
 
 # Set application_identifier
-$nativeApplicationIdentifier = $adfsNativeClientApplication.Identifier
+$module.Result.application_identifier = $adfsNativeClientApplication.Identifier
 
 # Remove native client application if state == absent
 if ($adfsNativeClientApplication -and -not $present) {
     try {
         Remove-AdfsNativeClientApplication `
-            -TargetIdentifier $nativeApplicationIdentifier `
+            -TargetIdentifier $module.Result.application_identifier `
             -Confirm:$false `
             -WhatIf:$module.CheckMode
     }
@@ -92,12 +92,19 @@ if ($adfsNativeClientApplication -and -not $present) {
     $module.ExitJson()
 }
 
-# Check description
-if ($module.Params.description -and ($adfsNativeClientApplication.Description -ne $module.Params.description)) {
+# Check if anything must be changed
+if (
+    ($module.Params.description -and ($adfsNativeClientApplication.Description -ne $module.Params.description)) -or
+    ($module.Params.name -and ($adfsNativeClientApplication.Name -ne $module.Params.name)) -or
+    (Compare-Object -ReferenceObject $adfsNativeClientApplication.RedirectUri -DifferenceObject $module.Params.redirect_uri)
+) {
+    # Apply changes
     try {
         Set-AdfsNativeClientApplication `
-            -TargetIdentifier $nativeApplicationIdentifier `
+            -TargetIdentifier $module.Result.application_identifier `
             -Description $module.Params.description `
+            -Name $module.Params.name `
+            -RedirectUri $module.Params.redirect_uri `
             -WhatIf:$module.CheckMode
     }
     catch {
@@ -106,32 +113,4 @@ if ($module.Params.description -and ($adfsNativeClientApplication.Description -n
     $module.Result.changed = $true
 }
 
-# Check name
-if ($module.Params.name -and ($adfsNativeClientApplication.Name -ne $module.Params.name)) {
-    try {
-        Set-AdfsNativeClientApplication `
-            -TargetIdentifier $nativeApplicationIdentifier `
-            -Name $module.Params.name `
-            -WhatIf:$module.CheckMode
-    }
-    catch {
-        $module.FailJson("Failed to modify native client application name.", $_)
-    }
-    $module.Result.changed = $true
-}
-
-# Check Redirect Uri
-if ($module.Params.redirect_uri -and ($adfsNativeClientApplication.RedirectUri -ne $module.Params.redirect_uri)) {
-    try {
-        Set-AdfsNativeClientApplication `
-            -TargetIdentifier $nativeApplicationIdentifier `
-            -RedirectUri $module.Params.redirect_uri `
-            -WhatIf:$module.CheckMode
-    }
-    catch {
-        $module.FailJson("Failed to set native client application redirect uri.", $_)
-    }
-}
-
-$module.Result.application_identifier
 $module.ExitJson()
