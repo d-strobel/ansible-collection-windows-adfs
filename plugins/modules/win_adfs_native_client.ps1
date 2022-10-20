@@ -54,6 +54,9 @@ catch {
     $module.FailJson("Failed to load PowerShell module $adfs_module.", $_)
 }
 
+# create application identifier
+$nativeApplicationIdentifier = (New-Guid).Guid
+
 # Search for native application group
 try {
     $nativeApplicationGroup = Get-AdfsNativeApplicationGroup -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue
@@ -104,6 +107,21 @@ if ($null -eq $applicationGroup.RedirectUri -and $change) {
     }
 }
 
-
+# Add native client app
+if ($present -and -not $change) {
+    try {
+        Add-AdfsNativeClientApplication `
+            -ApplicationGroupIdentifier $module.Params.group_identifier `
+            -Name $module.Params.name`
+            -Identifier $nativeApplicationIdentifier`
+            -RedirectUri $module.Params.redirect_uri`
+            -Description $module.Params.description`
+            -LogoutUri $module.Params.logout_uri`
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to add native application group.", $_)
+    }
+}
 
 
