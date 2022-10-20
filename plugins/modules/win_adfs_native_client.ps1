@@ -67,7 +67,7 @@ catch {
 
 
 # Check description
-if ($module.Params.description -and ($applicationGroup.Description -ne $module.Params.description)) {
+if ($module.Params.description -and ($nativeApplicationGroup.Description -ne $module.Params.description)) {
     try {
         Set-AdfsNativeClientApplication `
             -TargetApplicationGroupIdentifier $module.Params.group_identifier `
@@ -81,7 +81,7 @@ if ($module.Params.description -and ($applicationGroup.Description -ne $module.P
 }
 
 # Check name
-if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
+if ($module.Params.name -and ($nativeApplicationGroup.Name -ne $module.Params.name)) {
     try {
         Set-AdfsNativeClientApplication `
             -TargetApplicationGroupIdentifier $module.Params.group_identifier `
@@ -95,7 +95,7 @@ if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
 }
 
 # Check Redirect Uri
-if ($null -eq $applicationGroup.RedirectUri -and $change) {
+if ($null -eq $nativeApplicationGroup.RedirectUri -and $change) {
     try {
         Set-AdfsNativeClientApplication `
             -TargetApplicationGroupIdentifier $module.Params.group_identifier `
