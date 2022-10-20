@@ -73,7 +73,7 @@ elseif ($null -eq $adfsNativeClientApplication -and -not $present) {
     $module.ExitJson()
 }
 
-# Set client-id
+# Set application_identifier
 $nativeApplicationIdentifier = $adfsNativeClientApplication.Identifier
 
 # Remove native client application if state == absent
