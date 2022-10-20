@@ -57,5 +57,19 @@ catch {
 }
 
 
+# Check description
+if ($module.Params.description -and ($applicationGroup.Description -ne $module.Params.description)) {
+    try {
+        Set-AdfsNativeClientApplication `
+            -TargetApplicationGroupIdentifier $module.Params.group_identifier `
+            -Description $module.Params.description `
+            -WhatIf:$module.CheckMode
+    }
+    catch {
+        $module.FailJson("Failed to modify native application group description.", $_)
+    }
+    $module.Result.changed = $true
+}
+
 
 
