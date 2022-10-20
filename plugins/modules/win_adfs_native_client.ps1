@@ -14,7 +14,7 @@ $spec = @{
         description      = @{ type = "str" }
         redirect_uri     = @{ type = "list" }
         logout_uri       = @{ type = "str" }
-        state            = @{ type = "str"; choices = "absent", "present"; default = "present" }
+        state            = @{ type = "str"; choices = "absent", "present", "change"; default = "present" }
     }
     supports_check_mode = $true
 }
@@ -27,9 +27,15 @@ $ErrorActionPreference = 'Stop'
 switch ($module.Params.state) {
     "absent" {
         $present = $false
+        $change = $false
     }
     "present" {
         $present = $true
+        $change = $false
+    }
+    "change"{
+        $present = $true
+        $change = $true
     }
 }
 
@@ -86,7 +92,7 @@ if ($module.Params.name -and ($applicationGroup.Name -ne $module.Params.name)) {
 }
 
 # Check Redirect Uri
-if($null -eq $applicationGroup.RedirectUri -and $present){
+if($null -eq $applicationGroup.RedirectUri -and $change){
     try {
         Set-AdfsNativeClientApplication `
             -TargetApplicationGroupIdentifier $module.Params.group_identifier `
@@ -97,4 +103,6 @@ if($null -eq $applicationGroup.RedirectUri -and $present){
         $module.FailJson("Failed to set native application group redirect uri.", $_)
     }
 }
+
+
 
