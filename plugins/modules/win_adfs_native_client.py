@@ -6,40 +6,39 @@
 
 DOCUMENTATION = r'''
 ---
-module: win_adfs_native_client
-short_description: Add or modify native application groups
+module: win_adfs_native_client_application
+short_description: Add or modify native client applications
 description:
-- Adds or modify native application groups for the Active Directory Federation Services.
-- Change the name, description or add the redirect uri to the native application group
+- Adds or modify a native client application for the Active Directory Federation Services.
+- Change the name, description, redirect uri or logout uri to the native client application
 options:
   state:
     description:
     - Set to C(present) to ensure the application group is present.
     - Set to C(absent) to ensure the application group is removed.
-    - Set to C(change) to ensure the application group is present but should get changed.
     type: str
     default: present
-    choices: [ absent, present, change ]
+    choices: [ absent, present ]
   group_identifier:
     description:
-    - The identifier of the native application group.
+    - The identifier of the native client application.
     type: str
     required: yes
   name:
     description:
-    - The name of the native application group.
+    - The name of the native client application.
     type: str
   description:
     description:
-    - The description for the native application group.
+    - The description for the native client application.
     type: str
   redirect_uri:
     description:
-    - The redirect uri(s) for the native application group that is needed for the OAuth 2.0 client
+    - The redirect uri(s) for the native client application that is needed for the OAuth 2.0 client
     type: list
   logout_uri:
     description:
-    - The logout uri for the native application group that is needed for the OAuth 2.0 client.
+    - The logout uri for the native client application that is needed for the OAuth 2.0 client.
     type: str
 author:
 - Dustin Strobel (@d-strobel)
@@ -48,11 +47,11 @@ author:
 
 EXAMPLES = r'''
 - name: Ensure native application group is present
-  d_strobel.windows_adfs.win_adfs_native_client:
+  d_strobel.windows_adfs.win_adfs_native_client_application:
     group_identifier: test_group
     state: present
 - name: Create a native application group
-  d_strobel.windows_adfs.win_adfs_native_client:
+  d_strobel.windows_adfs.win_adfs_native_client_application:
     group_identifier: test_group
     name: Test Group
     description: Test description
@@ -62,16 +61,16 @@ EXAMPLES = r'''
     logout_uri: https://example.com/logout
     state: present
 - name: Remove native application group test_group
-  d_strobel.windows_adfs.win_adfs_native_client:
+  d_strobel.windows_adfs.win_adfs_native_client_application:
     group_identifier: test_group
     state: absent
 - name: Set the description of the native application group
-  d_strobel.windows_adfs.win_adfs_native_client:
+  d_strobel.windows_adfs.win_adfs_native_client_application:
     group_identifier: test_group
     description: Managed by XXX
     state: present
 - name: Set the redirect uri to the native application group
-  d_strobel.windows_adfs.win_adfs_native_client:
+  d_strobel.windows_adfs.win_adfs_native_client_application:
     group_identifier: test_group
     redirect_uri:
       - https://example.de
