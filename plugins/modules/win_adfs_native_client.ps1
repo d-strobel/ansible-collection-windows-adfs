@@ -80,7 +80,7 @@ $nativeApplicationIdentifier = $adfsNativeClientApplication.Identifier
 if ($adfsNativeClientApplication -and -not $present) {
     try {
         Remove-AdfsNativeClientApplication `
-            -TargetIdentifier $module.Params.group_identifier `
+            -TargetIdentifier $nativeApplicationIdentifier `
             -Confirm:$false `
             -WhatIf:$module.CheckMode
     }
@@ -96,7 +96,7 @@ if ($adfsNativeClientApplication -and -not $present) {
 if ($module.Params.description -and ($adfsNativeClientApplication.Description -ne $module.Params.description)) {
     try {
         Set-AdfsNativeClientApplication `
-            -TargetIdentifier $module.Params.group_identifier `
+            -TargetIdentifier $nativeApplicationIdentifier `
             -Description $module.Params.description `
             -WhatIf:$module.CheckMode
     }
@@ -110,7 +110,7 @@ if ($module.Params.description -and ($adfsNativeClientApplication.Description -n
 if ($module.Params.name -and ($adfsNativeClientApplication.Name -ne $module.Params.name)) {
     try {
         Set-AdfsNativeClientApplication `
-            -TargetIdentifier $module.Params.group_identifier `
+            -TargetIdentifier $nativeApplicationIdentifier `
             -Name $module.Params.name `
             -WhatIf:$module.CheckMode
     }
@@ -124,7 +124,7 @@ if ($module.Params.name -and ($adfsNativeClientApplication.Name -ne $module.Para
 if ($module.Params.redirect_uri -and ($adfsNativeClientApplication.RedirectUri -ne $module.Params.redirect_uri)) {
     try {
         Set-AdfsNativeClientApplication `
-            -TargetIdentifier $module.Params.group_identifier `
+            -TargetIdentifier $nativeApplicationIdentifier `
             -RedirectUri $module.Params.redirect_uri `
             -WhatIf:$module.CheckMode
     }
