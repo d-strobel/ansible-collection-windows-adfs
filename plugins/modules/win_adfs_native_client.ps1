@@ -13,7 +13,7 @@ $spec = @{
         description      = @{ type = "str" }
         redirect_uri     = @{ type = "list" }
         logout_uri       = @{ type = "str" }
-        state            = @{ type = "str"; choices = "absent", "present", "change"; default = "present" }
+        state            = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
     supports_check_mode = $true
 }
@@ -26,15 +26,9 @@ $ErrorActionPreference = 'Stop'
 switch ($module.Params.state) {
     "absent" {
         $present = $false
-        $change = $false
     }
     "present" {
         $present = $true
-        $change = $false
-    }
-    "change" {
-        $present = $true
-        $change = $true
     }
 }
 
