@@ -67,7 +67,6 @@ if($present){
 }
 
 
-
 # Check description
 if ($module.Params.description -and ($nativeApplicationGroup.Description -ne $module.Params.description)) {
     try {
