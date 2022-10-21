@@ -16,9 +16,10 @@ options:
     description:
     - Set to C(present) to ensure the application group is present.
     - Set to C(absent) to ensure the application group is removed.
+    - Set to C(disabled) to ensure the application group is present but disabled.
     type: str
     default: present
-    choices: [ absent, present ]
+    choices: [ absent, present, disabled ]
   group_identifier:
     description:
     - The identifier of the native client application.
@@ -35,6 +36,7 @@ options:
   redirect_uri:
     description:
     - The redirect uri(s) for the native client application that is needed for the OAuth 2.0 client
+    - If not being used in the task, it will paste an empty string automatically
     type: list
   logout_uri:
     description:
@@ -70,6 +72,13 @@ EXAMPLES = r'''
     description: Managed by XXX
     state: present
 - name: Set the redirect uri to the native application group
+  d_strobel.windows_adfs.win_adfs_native_client_application:
+    group_identifier: test_group
+    redirect_uri:
+      - https://example.de
+      - https://example.com
+    state: present
+- name: Remove the logout uri and set a redirect uri to the native application group:
   d_strobel.windows_adfs.win_adfs_native_client_application:
     group_identifier: test_group
     redirect_uri:
