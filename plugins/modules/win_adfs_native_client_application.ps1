@@ -23,6 +23,7 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 # ErrorAction
 $ErrorActionPreference = 'Stop'
 
+# State
 switch ($module.Params.state) {
     "absent" {
         $present = $false
