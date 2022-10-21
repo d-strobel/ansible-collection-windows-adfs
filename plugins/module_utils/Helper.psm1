@@ -11,6 +11,28 @@ function Import-AdfsPowershellModule {
     }
 }
 
+# Transform rules
+function Get-AdfsTransformRulesSpecs {
+    # Output the specs
+    @{
+        options = @{
+            domain           = @{ type = "str" }
+            claim_attributes = @{
+                type              = "list"
+                elements          = "dict"
+                options           = @{
+                    type      = @{ type = "str"; choices = "ldap", "group" }
+                    condition = @{ type = "str" }
+                    issuance  = @{ type = "str" }
+                }
+                required_together = @(
+                    , @("type", "condition", "issuance")
+                )
+            }
+        }
+    }
+}
+
 function Get-AdfsTransformRules {
 
     [CmdletBinding()]
@@ -70,7 +92,7 @@ function Get-AdfsTransformRules {
                     if ($claimLdap) {
                         $ldapRuleTypes += "`"$($claimLdap.ClaimType)`", "
                     }
-                    else{
+                    else {
                         $ldapRuleTypes += "`"$($claimAttribute.Condition)`","
                     }
                 }
