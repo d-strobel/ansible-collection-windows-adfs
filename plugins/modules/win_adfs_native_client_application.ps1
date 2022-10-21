@@ -50,14 +50,14 @@ $adfsNativeClientApplication = Get-AdfsNativeClientApplication -ApplicationGroup
 
 # Create native client application if it not exists
 if ($null -eq $adfsNativeClientApplication -and $present) {
-    # Client-ID
-    $nativeApplicationIdentifier = (New-Guid).Guid
+    # Application identifier
+    $module.Result.application_identifier = (New-Guid).Guid
 
     try {
         Add-AdfsNativeClientApplication `
             -ApplicationGroupIdentifier $module.Params.group_identifier `
             -Name $module.Params.name `
-            -Identifier $nativeApplicationIdentifier `
+            -Identifier $module.Result.application_identifier `
             -RedirectUri $module.Params.redirect_uri `
             -Description $module.Params.description `
             -LogoutUri $module.Params.logout_uri `
@@ -94,9 +94,9 @@ if ($adfsNativeClientApplication -and -not $present) {
 
 # Check if anything must be changed
 if (
-    ($module.Params.description -and ($adfsNativeClientApplication.Description -ne $module.Params.description)) -or
-    ($module.Params.name -and ($adfsNativeClientApplication.Name -ne $module.Params.name)) -or
-    (Compare-Object -ReferenceObject $adfsNativeClientApplication.RedirectUri -DifferenceObject $module.Params.redirect_uri)
+    ($adfsNativeClientApplication.Description -ne $module.Params.description) `
+    -or ($adfsNativeClientApplication.Name -ne $module.Params.name) `
+    -or (Compare-Object -ReferenceObject $adfsNativeClientApplication.RedirectUri -DifferenceObject $module.Params.redirect_uri)
 ) {
     # Apply changes
     try {
