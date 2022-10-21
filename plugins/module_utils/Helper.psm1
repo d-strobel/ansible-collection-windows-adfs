@@ -27,6 +27,18 @@ function Get-AdfsTransformRules {
     }
 
     process {
+        # Get ClaimDescription for group
+        $claimGroup = Get-AdfsClaimDescription -ShortName group
+        if ($null -eq $claimGroup) {
+            throw "Cannot find the Claim description for group, which is needed to create a claim rule."
+        }
+
+        # Get ClaimDescription for groupsid
+        $claimGroupSID = Get-AdfsClaimDescription -ShortName groupsid
+        if ($null -eq $claimGroupSID) {
+            throw "Cannot find the Claim description for groupsid, which is needed to create a claim rule."
+        }
+
         # Build transform rules for claims
         foreach ($claimAttribute in $Module.Params.claim_attributes) {
 
@@ -45,22 +57,20 @@ function Get-AdfsTransformRules {
                     $transformRule += "
                         @RuleTemplate = `"EmitGroupClaims`"
                         @RuleName = `"Group $($claimAttribute.Condition)`"
-                        c:[Type == `"http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid`", Value == `"$groupSID`", Issuer == `"AD AUTHORITY`"]
-                        => issue(Type = `"http://schemas.xmlsoap.org/claims/Group`", Value = `"$($claimAttribute.Issuance)`", Issuer = c.Issuer, OriginalIssuer = c.OriginalIssuer, ValueType = c.ValueType);
+                        c:[Type == `"$($claimGroupSID.ClaimType)`", Value == `"$groupSID`", Issuer == `"AD AUTHORITY`"]
+                        => issue(Type = `"$($claimGroup.ClaimType)`", Value = `"$($claimAttribute.Issuance)`", Issuer = c.Issuer, OriginalIssuer = c.OriginalIssuer, ValueType = c.ValueType);
                     "
                 }
                 'ldap' {
                     # Query output for this claim
                     $ldapRuleQuery += "$($claimAttribute.Issuance),"
 
-                    # Type for this claim
-                    if ($claimAttribute.Condition -match "givenname|surname|emailaddress") {
-                        $ldapRuleTypes += "`"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/$($claimAttribute.Condition)`", "
+                    # Try to find claim type
+                    $claimLdap = Get-AdfsClaimDescription -ShortName $claimAttribute.Issuance
+                    if ($claimLdap) {
+                        $ldapRuleTypes += "`"$($claimLdap.ClaimType)`", "
                     }
-                    elseif ($claimAttribute.Condition -eq "windowsaccountname") {
-                        $ldapRuleTypes += "`"http://schemas.microsoft.com/ws/2008/06/identity/claims/$($claimAttribute.Condition)`", "
-                    }
-                    else {
+                    else{
                         $ldapRuleTypes += "`"$($claimAttribute.Condition)`","
                     }
                 }
