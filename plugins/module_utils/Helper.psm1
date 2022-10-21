@@ -11,6 +11,34 @@ function Import-AdfsPowershellModule {
     }
 }
 
+# Access control policy
+function Get-AdfsAccessControlPolicySpecs {
+    # Output the specs
+    @{
+        options     = @{
+            access_control_policy  = @{
+                type    = "str"
+                choices = @(
+                    "permit_everyone",
+                    "permit_specific_group",
+                    "permit_everyone_and_require_mfa",
+                    "permit_everyone_and_require_mfa_for_specific_group",
+                    "permit_everyone_and_require_mfa_or_auto_device_registration",
+                    "permit_everyone_and_require_mfa_from_unauthenticated_devices",
+                    "permit_everyone_and_require_mfa_from_extranet_access"
+                )
+            }
+            access_control_group   = @{type = "list"; elements = "str" }
+            access_control_exclude = @{type = "list"; elements = "str" }
+        }
+
+        required_if = @(
+            , @("access_control_policy", "permit_specific_group", @("access_control_group"))
+            , @("access_control_policy", "permit_everyone_and_require_mfa_for_specific_group", @("access_control_group", "access_control_exclude"))
+        )
+    }
+}
+
 # Transform rules
 function Get-AdfsTransformRulesSpecs {
     # Output the specs
@@ -124,6 +152,11 @@ function Get-AdfsTransformRules {
 
 # Export functions
 $exportMembers = @{
-    Function = 'Import-AdfsPowershellModule', 'Get-AdfsTransformRules'
+    Function = @(
+        'Import-AdfsPowershellModule',
+        'Get-AdfsAccessControlPolicySpecs',
+        'Get-AdfsTransformRulesSpecs',
+        'Get-AdfsTransformRules'
+    )
 }
 Export-ModuleMember @exportMembers
