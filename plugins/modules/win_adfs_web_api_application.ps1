@@ -9,35 +9,12 @@
 
 $spec = @{
     options             = @{
-        group_identifier      = @{ type = "str"; required = $true }
-        name                  = @{ type = "str" }
-        description           = @{ type = "str" }
-        access_control_policy = @{
-            type    = "str"
-            choices = "permit_everyone", "permit_specific_group"
-        }
-        access_group          = @{type = "list"; elements = "str" }
-        claim_attributes      = @{
-            type              = "list"
-            elements          = "dict"
-            options           = @{
-                type      = @{ type = "str"; choices = "ldap", "group" }
-                condition = @{ type = "str" }
-                issuance  = @{ type = "str" }
-            }
-            required_together = @(
-                , @("type", "condition", "issuance")
-            )
-        }
-        domain                = @{ type = "str" }
-        state                 = @{ type = "str"; choices = "absent", "present"; default = "present" }
+        group_identifier       = @{ type = "str"; required = $true }
+        name                   = @{ type = "str" }
+        description            = @{ type = "str" }
+        state                  = @{ type = "str"; choices = "absent", "present"; default = "present" }
     }
     supports_check_mode = $true
-
-    required_if         = @(
-        , @("access_control_policy", "permit_specific_group", @("access_group"))
-    )
 }
 
-$module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
-
+$module = [Ansible.Basic.AnsibleModule]::Create($args, $spec, @(Get-AdfsTransformRulesSpecs; Get-AdfsAccessControlPolicySpecs))
