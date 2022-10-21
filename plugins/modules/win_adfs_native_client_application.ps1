@@ -33,6 +33,11 @@ switch ($module.Params.state) {
     }
 }
 
+# Set the Name to Group Identifier if not present
+if ($null -eq $module.Params.name) {
+    $module.Params.name = "$($module.Params.group_identifier) - Native Client Application"
+}
+
 # If logout uri is not set, it must be an empty string
 if (-not $module.Params.logout_uri) {
     $adfsLogoutUri = ""
