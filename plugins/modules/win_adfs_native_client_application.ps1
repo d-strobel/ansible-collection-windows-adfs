@@ -47,17 +47,9 @@ else {
 }
 
 # Ensure powershell module is loaded
-$adfs_module = "ADFS"
-
-try {
-    if ($null -eq (Get-Module $adfs_module -ErrorAction SilentlyContinue)) {
-        Import-Module $adfs_module
-    }
+if(-not (Import-AdfsPowershellModule)) {
+    $module.FailJson("Failed to load PowerShell-Module for ADFS")
 }
-catch {
-    $module.FailJson("Failed to load PowerShell module $adfs_module.", $_)
-}
-
 
 # Search for native application group
 $adfsNativeClientApplication = Get-AdfsNativeClientApplication -ApplicationGroupIdentifier $module.Params.group_identifier -ErrorAction SilentlyContinue

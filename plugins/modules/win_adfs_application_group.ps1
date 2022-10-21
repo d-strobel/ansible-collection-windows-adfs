@@ -5,6 +5,7 @@
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
 #AnsibleRequires -PowerShell Ansible.ModuleUtils.AddType
+#AnsibleRequires -PowerShell ansible_collections.d_strobel.windows_adfs.plugins.module_utils.Helper
 
 $spec = @{
     options             = @{
@@ -46,15 +47,8 @@ if ($null -eq $module.Params.name) {
 $module.Result.group_identifier = $module.Params.group_identifier
 
 # Ensure powershell module is loaded
-$adfs_module = "ADFS"
-
-try {
-    if ($null -eq (Get-Module $adfs_module -ErrorAction SilentlyContinue)) {
-        Import-Module $adfs_module
-    }
-}
-catch {
-    $module.FailJson("Failed to load PowerShell module $adfs_module.", $_)
+if(-not (Import-AdfsPowershellModule)) {
+    $module.FailJson("Failed to load PowerShell-Module for ADFS")
 }
 
 # Search for application group
