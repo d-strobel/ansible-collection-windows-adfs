@@ -32,6 +32,14 @@ switch ($module.Params.state) {
     }
 }
 
+# If logout uri is not set, it must be an empty string
+if (-not $module.Params.logout_uri) {
+    $adfsLogoutUri = ""
+}
+else {
+    $adfsLogoutUri = $module.Params.logout_uri
+}
+
 # Ensure powershell module is loaded
 $adfs_module = "ADFS"
 
@@ -51,16 +59,17 @@ $adfsNativeClientApplication = Get-AdfsNativeClientApplication -ApplicationGroup
 # Create native client application if it not exists
 if ($null -eq $adfsNativeClientApplication -and $present) {
     # Application identifier
-    $module.Result.application_identifier = (New-Guid).Guid
+    $adfsApplicationIdentifier = (New-Guid).Guid
+    $module.Result.application_identifier = $adfsApplicationIdentifier
 
     try {
         Add-AdfsNativeClientApplication `
             -ApplicationGroupIdentifier $module.Params.group_identifier `
             -Name $module.Params.name `
-            -Identifier $module.Result.application_identifier `
+            -Identifier $adfsApplicationIdentifier `
             -RedirectUri $module.Params.redirect_uri `
             -Description $module.Params.description `
-            -LogoutUri $module.Params.logout_uri `
+            -LogoutUri $adfsLogoutUri `
             -WhatIf:$module.CheckMode
     }
     catch {
@@ -74,13 +83,14 @@ elseif ($null -eq $adfsNativeClientApplication -and -not $present) {
 }
 
 # Set application_identifier
-$module.Result.application_identifier = $adfsNativeClientApplication.Identifier
+$adfsApplicationIdentifier = $adfsNativeClientApplication.Identifier
+$module.Result.application_identifier = $adfsApplicationIdentifier
 
 # Remove native client application if state == absent
 if ($adfsNativeClientApplication -and -not $present) {
     try {
         Remove-AdfsNativeClientApplication `
-            -TargetIdentifier $module.Result.application_identifier `
+            -TargetIdentifier $adfsApplicationIdentifier `
             -Confirm:$false `
             -WhatIf:$module.CheckMode
     }
@@ -95,16 +105,18 @@ if ($adfsNativeClientApplication -and -not $present) {
 # Check if anything must be changed
 if (
     ($adfsNativeClientApplication.Description -ne $module.Params.description) `
-    -or ($adfsNativeClientApplication.Name -ne $module.Params.name) `
-    -or (Compare-Object -ReferenceObject $adfsNativeClientApplication.RedirectUri -DifferenceObject $module.Params.redirect_uri)
+        -or ($adfsNativeClientApplication.Name -ne $module.Params.name) `
+        -or ($adfsNativeClientApplication.LogoutUri -ne $adfsLogoutUri) `
+        -or (Compare-Object -ReferenceObject $adfsNativeClientApplication.RedirectUri -DifferenceObject $module.Params.redirect_uri)
 ) {
     # Apply changes
     try {
         Set-AdfsNativeClientApplication `
-            -TargetIdentifier $module.Result.application_identifier `
+            -TargetIdentifier $adfsApplicationIdentifier `
             -Description $module.Params.description `
             -Name $module.Params.name `
             -RedirectUri $module.Params.redirect_uri `
+            -LogoutUri $adfsLogoutUri `
             -WhatIf:$module.CheckMode
     }
     catch {
